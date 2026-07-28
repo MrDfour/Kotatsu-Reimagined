@@ -31,6 +31,14 @@ class BackupsSettingsFragment : BasePreferenceFragment(R.string.backup_restore),
         this,
     )
 
+    private val mihonBackupSelectCall = registerForActivityResult(
+        ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri != null) {
+            router.showMihonImportDialog(uri)
+        }
+    }
+
     private val backupCreateCall = registerForActivityResult(
         ActivityResultContracts.CreateDocument("application/zip"),
     ) { uri ->
@@ -66,6 +74,15 @@ class BackupsSettingsFragment : BasePreferenceFragment(R.string.backup_restore),
 
             AppSettings.KEY_RESTORE -> {
                 if (!backupSelectCall.tryLaunch(arrayOf("*/*"))) {
+                    Snackbar.make(
+                        listView, R.string.operation_not_supported, Snackbar.LENGTH_SHORT,
+                    ).show()
+                }
+                true
+            }
+
+            AppSettings.KEY_IMPORT_MIHON -> {
+                if (!mihonBackupSelectCall.tryLaunch(arrayOf("*/*"))) {
                     Snackbar.make(
                         listView, R.string.operation_not_supported, Snackbar.LENGTH_SHORT,
                     ).show()

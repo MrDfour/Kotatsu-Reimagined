@@ -26,6 +26,7 @@ import org.koitharu.kotatsu.BuildConfig
 import org.koitharu.kotatsu.R
 import org.koitharu.kotatsu.alternatives.ui.AlternativesActivity
 import org.koitharu.kotatsu.backups.ui.backup.BackupDialogFragment
+import org.koitharu.kotatsu.backups.ui.mihon.MihonImportDialogFragment
 import org.koitharu.kotatsu.backups.ui.restore.RestoreDialogFragment
 import org.koitharu.kotatsu.bookmarks.ui.AllBookmarksActivity
 import org.koitharu.kotatsu.browser.BrowserActivity
@@ -461,6 +462,12 @@ class AppRouter private constructor(
 
     fun showBackupRestoreDialog(fileUri: Uri) {
         RestoreDialogFragment().withArgs(1) {
+            putString(KEY_FILE, fileUri.toString())
+        }.show()
+    }
+
+    fun showMihonImportDialog(fileUri: Uri) {
+        MihonImportDialogFragment().withArgs(1) {
             putString(KEY_FILE, fileUri.toString())
         }.show()
     }

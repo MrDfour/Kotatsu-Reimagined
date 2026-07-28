@@ -148,6 +148,12 @@
     <string name="backup_restore">Backup and restore</string>
     <string name="create_backup">Create data backup</string>
     <string name="restore_backup">Restore from backup</string>
+    <string name="import_mihon_backup">Import Mihon-like backup</string>
+    <string name="import_mihon_backup_summary">Use this option to import your backups from Mihon and related forks</string>
+    <string name="importing_mihon_backup">Importing Mihon backup…</string>
+    <string name="mihon_import_complete">Import completed</string>
+    <string name="mihon_import_summary">%1$d manga imported, %2$d categories created</string>
+    <string name="mihon_unmapped_sources">Some sources could not be matched to Kotatsu parsers:</string>
     <string name="data_restored">Restored</string>
     <string name="preparing_">Preparing…</string>
     <string name="file_not_found">File not found</string>
