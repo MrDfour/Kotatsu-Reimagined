@@ -7,46 +7,56 @@ jobs:
   build:
     name: Build Debug APK
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
           distribution: 'temurin'
+          java-version: '17'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Make gradlew executable
+      - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Prepare APK Artifacts
+      - name: List build outputs
         run: |
-          DEST_DIR="$GITHUB_WORKSPACE/artifacts"
-          mkdir -p "$DEST_DIR"
-          cd app/build/outputs/apk/debug
-          for file in *.apk; do
-            if [ -f "$file" ]; then
-              if [[ "$file" == *"universal"* ]]; then
-                cp "$file" "$DEST_DIR/Kotatsu-Reimagined Debug (Universal).apk"
-              elif [[ "$file" == *"arm64-v8a"* ]]; then
-                cp "$file" "$DEST_DIR/Kotatsu-Reimagined Debug (arm64-v8a).apk"
-              elif [[ "$file" == *"armeabi-v7a"* ]]; then
-                cp "$file" "$DEST_DIR/Kotatsu-Reimagined Debug (armeabi-v7a).apk"
-              elif [[ "$file" == *"x86_64"* ]]; then
-                cp "$file" "$DEST_DIR/Kotatsu-Reimagined Debug (x86_64).apk"
-              elif [[ "$file" == *"x86"* ]]; then
-                cp "$file" "$DEST_DIR/Kotatsu-Reimagined Debug (x86).apk"
-              else
-                cp "$file" "$DEST_DIR/Kotatsu-Reimagined Debug ($file)"
-              fi
+          echo "Listing APK outputs:"
+          find app/build/outputs/apk -name "*.apk" -type f
+
+      - name: Collect Debug APKs
+        run: |
+          mkdir -p artifacts
+          shopt -s nullglob
+          APK_FILES=(app/build/outputs/apk/debug/*.apk)
+          if [ ${#APK_FILES[@]} -eq 0 ]; then
+            echo "Error: No APK file found in app/build/outputs/apk/debug"
+            exit 1
+          fi
+
+          for apk in "${APK_FILES[@]}"; do
+            filename=$(basename "$apk")
+            abi="${filename#app-}"
+            abi="${abi%-debug-unsigned.apk}"
+            abi="${abi%-debug.apk}"
+            if [ "$abi" = "$filename" ] || [ -z "$abi" ]; then
+              abi="universal"
+            fi
+            if [ "$abi" = "universal" ]; then
+              cp "$apk" "artifacts/Kotatsu-Reimagined Debug (Universal).apk"
+              cp "$apk" "artifacts/Kotatsu-Reimagined Debug.apk"
+            else
+              cp "$apk" "artifacts/Kotatsu-Reimagined Debug (${abi}).apk"
             fi
           done
 
@@ -55,3 +65,4 @@ jobs:
         with:
           name: Kotatsu-Reimagined Debug
           path: artifacts/*.apk
+          if-no-files-found: error
